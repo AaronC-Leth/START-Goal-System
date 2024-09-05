@@ -1,9 +1,9 @@
 {
   "name": "ca.start.goalsystem",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "START Goal System",
   "description": "Manages goals and requirements",
-  "unity": "2022.1",
+  "unity": "2022.3",
   "keywords": [
     "goal",
     "requirement",

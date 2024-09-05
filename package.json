@@ -1,0 +1,17 @@
+{
+  "name": "ca.start.goalsystem",
+  "version": "1.0.0",
+  "displayName": "START Goal System",
+  "description": "Manages goals and requirements",
+  "unity": "2022.1",
+  "keywords": [
+    "goal",
+    "requirement",
+    "system"
+  ],
+  "author": {
+    "name": "Aaron Clifford",
+    "email": "aaron.clifford@lethpolytech.ca",
+    "url": "https://lethpolytech.ca"
+  }
+}

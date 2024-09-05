@@ -1,6 +1,6 @@
 {
   "name": "ca.start.goalsystem",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "displayName": "START Goal System",
   "description": "Manages goals and requirements",
   "unity": "2022.3",

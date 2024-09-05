@@ -1,18 +1,17 @@
-using Sirenix.OdinInspector;
-using START.Scripts.GoalSystem;
-using START.scripts.GoalSystem.ScriptableObjects;
+using START.GoalSystem;
+using START.GoalSystem.ScriptableObjects;
 using TMPro;
 using UnityEngine;
 
-namespace START.scripts.GoalSystem
+namespace START.GoalSystem
 {
     public class RequirementTextUpdater : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI textComponent;
         [SerializeField] private IntRequirementSO intRequirement;
-        [SerializeField] private string textFormatString = "You have {value} potions.";
+        [SerializeField] private string textFormatString = "You have {value} items.";
 
-        [SerializeField, ReadOnly] private int currentValue;
+        private int currentValue;
 
         private void Start()
         {
@@ -27,12 +26,33 @@ namespace START.scripts.GoalSystem
                 return;
             }
 
+            // Subscribe to the requirement update event
+            if (GoalManager.Instance != null)
+            {
+                GoalManager.Instance.OnRequirementUpdated.AddListener(OnRequirementUpdated);
+            }
+
+            // Initial text update
             UpdateText();
         }
 
-        private void Update()
+        private void OnDestroy()
         {
-            UpdateText();
+            // Unsubscribe from the requirement update event to avoid memory leaks
+            if (GoalManager.Instance != null)
+            {
+                GoalManager.Instance.OnRequirementUpdated.RemoveListener(OnRequirementUpdated);
+            }
+        }
+
+        // Event handler for when a requirement is updated
+        private void OnRequirementUpdated(RequirementData requirementData)
+        {
+            // Only update if the changed requirement matches the one this updater is monitoring
+            if (requirementData.Config == intRequirement)
+            {
+                UpdateText();
+            }
         }
 
         private void UpdateText()
@@ -50,13 +70,13 @@ namespace START.scripts.GoalSystem
             var goals = GoalManager.Instance.GetActiveGoals();
             foreach (var goal in goals)
             {
-                var goalDebugInfo = GoalManager.Instance.GetGoalDebugList().Find(g => g.Name == goal.goalName);
-                if (goalDebugInfo != null)
+                GoalData goalInfo = GoalManager.GetGoalByName(goal.goalName);
+                if (goalInfo != null)
                 {
-                    var requirement = goalDebugInfo.Requirements.Find(r => r.Name == intRequirement.requirementName);
+                    IntRequirementData requirement = GoalManager.GetIntRequirement(goalInfo, intRequirement.requirementName);
                     if (requirement != null)
                     {
-                        return int.Parse(requirement.CurrentValue);
+                        return requirement.currentValue;
                     }
                 }
             }

@@ -1,7 +1,7 @@
-using START.Scripts.GoalSystem;
+using START.GoalSystem;
 using UnityEngine;
 
-namespace START.scripts.GoalSystem.ScriptableObjects
+namespace START.GoalSystem.ScriptableObjects
 {
     [CreateAssetMenu(fileName = "New Bool Requirement", menuName = "START/Requirements/Bool Requirement")]
     public class BoolRequirementSO : RequirementSO

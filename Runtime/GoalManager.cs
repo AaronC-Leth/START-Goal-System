@@ -2,29 +2,26 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Sirenix.OdinInspector;
-using START.scripts.GoalSystem.ScriptableObjects;
+using START.GoalSystem.ScriptableObjects;
 using Unity.VisualScripting;
 using UnityEngine.Events;
 
-namespace START.Scripts.GoalSystem
+namespace START.GoalSystem
 {
-    [ExecuteAlways]
-    public class GoalManager : SerializedMonoBehaviour
+    public class GoalManager : MonoBehaviour
     {
         private static GoalManager _instance;
         private static bool _isQuitting = false;
-
         
         #region START_Debug
 
-        [FoldoutGroup("Debug")] [SerializeField]
+        [SerializeField]
         private bool debugActive;
 
-        [FoldoutGroup("Debug")] [SerializeField]
+        [SerializeField]
         private Color debugColor = Color.cyan;
         
-        [FoldoutGroup("Debug")] [SerializeField]
+        [SerializeField]
         private Color warnColor = Color.yellow;
 
         private void Log(string title, string body = "", bool isWarning = false)
@@ -37,7 +34,6 @@ namespace START.Scripts.GoalSystem
         }
 
         #endregion
-
         
         public static GoalManager Instance
         {
@@ -73,7 +69,6 @@ namespace START.Scripts.GoalSystem
         }
 
 
-        [SerializeField, ReadOnly]
         private Dictionary<GoalSO, GoalData> goalDataMap = new Dictionary<GoalSO, GoalData>();
 
         [SerializeField] // Make these serializable so they appear in the inspector
@@ -81,55 +76,9 @@ namespace START.Scripts.GoalSystem
         [SerializeField]
         public UnityEvent<GoalSO> OnGoalCompleted;
         
-
-        [Title("Goal System Debug")]
-        [ShowInInspector, ReadOnly, ListDrawerSettings(ShowIndexLabels = true, ListElementLabelName = "Name")]
-        private List<GoalDebugInfo> goalDebugList = new List<GoalDebugInfo>();
-
-        [Serializable]
-        public class GoalDebugInfo
-        {
-            [HorizontalGroup("Header"), LabelWidth(100)]
-            [ShowInInspector, ReadOnly] public string Name;
-
-            [HorizontalGroup("Header"), LabelWidth(60)]
-            [ShowInInspector, ReadOnly] public bool IsActive;
-
-            [HorizontalGroup("Header"), LabelWidth(90)]
-            [ShowInInspector, ReadOnly] public bool IsCompleted;
-
-            [ShowInInspector, ReadOnly]
-            [TableList(ShowIndexLabels = true, IsReadOnly = true)]
-            public List<RequirementDebugInfo> Requirements;
-
-            [ShowInInspector, ReadOnly]
-            [ProgressBar(0, 1, ColorMember = "ProgressColor")]
-            public float Progress;
-
-            public Color ProgressColor => IsCompleted ? Color.green : (IsActive ? Color.yellow : Color.gray);
-        }
-
-        [Serializable]
-        public class RequirementDebugInfo
-        {
-            [TableColumnWidth(150, false)]
-            [ShowInInspector, ReadOnly] public string Name;
-
-            [TableColumnWidth(100, false)]
-            [ShowInInspector, ReadOnly] public string Type;
-
-            [ShowInInspector, ReadOnly] public bool IsMet;
-
-            [ShowInInspector, ReadOnly] public string CurrentValue;
-
-            [ShowInInspector, ReadOnly] public string TargetValue;
-
-            [ProgressBar(0, 1, ColorMember = "ProgressColor")]
-            [ShowInInspector, ReadOnly] public float Progress;
-
-            public Color ProgressColor => IsMet ? Color.green : Color.yellow;
-        }
-
+        [SerializeField]
+        public UnityEvent<RequirementData> OnRequirementUpdated;
+        
         private void Awake()
         {
             if (Application.isPlaying)
@@ -165,17 +114,13 @@ namespace START.Scripts.GoalSystem
             _instance = this;
         }
 
-        private void Update()
-        {
-            UpdateDebugInfo();
-        }
+
         public void AddGoal(GoalSO goalSO)
         {
             if (!goalDataMap.ContainsKey(goalSO))
             {
                 goalDataMap[goalSO] = new GoalData(goalSO);
                 Log($"Goal Added", goalSO.goalName);
-                UpdateDebugInfo();
             }
             else
             {
@@ -188,7 +133,6 @@ namespace START.Scripts.GoalSystem
             if (goalDataMap.Remove(goalSO))
             {
                 Log($"Goal Removed", goalSO.goalName);
-                UpdateDebugInfo();
             }
             else
             {
@@ -203,7 +147,6 @@ namespace START.Scripts.GoalSystem
                 goalData.IsActive = true;
                 OnGoalActivated.Invoke(goalSO);
                 Log($"Goal activated", goalSO.goalName);
-                UpdateDebugInfo();
             }
         }
         
@@ -219,7 +162,6 @@ namespace START.Scripts.GoalSystem
                 goalData.IsActive = true;
                 OnGoalActivated.Invoke(goalSO);
                 Log($"Goal activated", goalSO.goalName);
-                UpdateDebugInfo();
             }
         }
         
@@ -246,12 +188,11 @@ namespace START.Scripts.GoalSystem
         private void UpdateGoal(GoalSO goalSO)
         {
             bool gotData = goalDataMap.TryGetValue(goalSO, out GoalData goalData);
-            Log("UPDATING GOAL", goalSO.goalName + " | " + gotData);
+            Log("UPDATING GOAL", goalSO.goalName);
             if (gotData && goalData.IsActive && goalData.IsCompleted())
             {
                 OnGoalCompleted.Invoke(goalSO);
                 Log($"Goal complete", goalSO.goalName);
-                UpdateDebugInfo();
             }
         }
         public void SetBoolRequirement(BoolRequirementSO requirementSO, bool value)
@@ -262,10 +203,10 @@ namespace START.Scripts.GoalSystem
                 if (reqData != null)
                 {
                     reqData.value = value;
+                    OnRequirementUpdated.Invoke(reqData); // Trigger requirement update event
                     UpdateGoal(goalData.Config);
                 }
             }
-            UpdateDebugInfo();
         }
 
         public void IncrementIntRequirement(IntRequirementSO requirementSO, int amount)
@@ -273,42 +214,17 @@ namespace START.Scripts.GoalSystem
             foreach (var goalData in goalDataMap.Values)
             {
                 if(!goalData.IsActive) return;
-                
+        
                 var reqData = goalData.RequirementDatas.Find(r => r.Config == requirementSO) as IntRequirementData;
                 if (reqData != null)
                 {
                     reqData.currentValue += amount;
+                    OnRequirementUpdated.Invoke(reqData); // Trigger requirement update event
                     UpdateGoal(goalData.Config);
                 }
             }
-            UpdateDebugInfo();
         }
 
-        private void UpdateDebugInfo()
-        {
-            goalDebugList = GetGoalDebugList();
-        }
-        public List<GoalDebugInfo> GetGoalDebugList()
-        {
-            return goalDataMap.Select(kvp => new GoalDebugInfo
-            {
-                Name = kvp.Key.goalName,
-                IsActive = kvp.Value.IsActive,
-                IsCompleted = kvp.Value.IsCompleted(),
-                Requirements = kvp.Value.RequirementDatas.Select(r => new RequirementDebugInfo
-                {
-                    Name = r.Config.requirementName,
-                    Type = r.GetType().Name,
-                    IsMet = r.IsMet(),
-                    CurrentValue = GetRequirementCurrentValue(r),
-                    TargetValue = GetRequirementTargetValue(r),
-                    Progress = GetRequirementProgress(r)
-                }).ToList(),
-                Progress = kvp.Value.RequirementDatas.Count > 0 
-                    ? (float)kvp.Value.RequirementDatas.Count(r => r.IsMet()) / kvp.Value.RequirementDatas.Count 
-                    : 0f
-            }).ToList();
-        }
 
         private string GetRequirementCurrentValue(RequirementData r)
         {
@@ -338,6 +254,41 @@ namespace START.Scripts.GoalSystem
                 IntRequirementData intReq => Mathf.Clamp01((float)intReq.currentValue / ((IntRequirementSO)intReq.Config).targetValue),
                 _ => 0f
             };
+        }
+
+        public static GoalData GetGoalByName(string goalName)
+        {
+            foreach (GoalData goal in Instance.goalDataMap.Values)
+            {
+                if (goal.Config.goalName == goalName)
+                {
+                    return goal;
+                }
+            }
+
+            return null;
+        }
+
+        public static IntRequirementData GetIntRequirement(GoalData goalInfo, string intRequirementName)
+        {
+            if (goalInfo == null || intRequirementName == null)
+            {
+                return null;
+            }
+
+            foreach (RequirementData gData in goalInfo.RequirementDatas)
+            {
+                if (gData.GetType() == typeof(IntRequirementData))
+                {
+                    if (gData.Config.requirementName == intRequirementName)
+                    {
+                        IntRequirementData req = (IntRequirementData)gData;
+                        return req;
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace START.scripts.GoalSystem.ScriptableObjects
+namespace START.GoalSystem.ScriptableObjects
 {
     public class GoalData
     {

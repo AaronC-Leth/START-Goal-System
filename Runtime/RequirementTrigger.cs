@@ -1,7 +1,7 @@
-using START.scripts.GoalSystem.ScriptableObjects;
+using START.GoalSystem.ScriptableObjects;
 using UnityEngine;
 
-namespace START.Scripts.GoalSystem
+namespace START.GoalSystem
 {
     [RequireComponent(typeof(Collider))]
     public class RequirementTrigger : RequirementUpdater

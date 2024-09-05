@@ -1,21 +1,20 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
-using START.scripts.GoalSystem.ScriptableObjects;
+using START.GoalSystem.ScriptableObjects;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace START.Scripts.GoalSystem
+namespace START.GoalSystem
 {
     public class GoalListener : MonoBehaviour
     {
         [SerializeField] private GoalSO targetGoal;
 
-        [SerializeField, ListDrawerSettings(ShowIndexLabels = true, AddCopiesLastElement = true)]
+        [SerializeField]
         private List<DelayedAction> activationDelayedActions = new List<DelayedAction>();
 
-        [SerializeField, ListDrawerSettings(ShowIndexLabels = true, AddCopiesLastElement = true)]
+        [SerializeField]
         private List<DelayedAction> completionDelayedActions = new List<DelayedAction>();
 
         private Coroutine activationActionSequenceCoroutine;

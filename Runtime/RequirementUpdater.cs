@@ -1,9 +1,7 @@
-// File: RequirementUpdater.cs
-
-using START.GoalSystem.ScriptableObjects;
+using START.scripts.GoalSystem.ScriptableObjects;
 using UnityEngine;
 
-namespace START.GoalSystem
+namespace START.Scripts.GoalSystem
 {
     public class RequirementUpdater : MonoBehaviour
     {
@@ -22,8 +20,13 @@ namespace START.GoalSystem
             IncrementInt
         }
 
-        public RequirementUpdate[] requirementUpdates;
+        [SerializeField] private RequirementUpdate[] requirementUpdates;
 
+        public RequirementUpdate[] GetRequirementUpdates()
+        {
+            return requirementUpdates;
+        }
+        
         private void Start()
         {
             // Ensure GoalManager is available, especially for additively loaded scenes

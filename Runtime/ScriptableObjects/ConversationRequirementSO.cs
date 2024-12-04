@@ -1,7 +1,7 @@
-using START.GoalSystem;
+using START.Scripts.GoalSystem;
 using UnityEngine;
 
-namespace START.GoalSystem.ScriptableObjects
+namespace START.scripts.GoalSystem.ScriptableObjects
 {
     [CreateAssetMenu(fileName = "New Conversation Requirement", menuName = "START/Requirements/Conversation Requirement")]
     public class ConversationRequirementSO : RequirementSO

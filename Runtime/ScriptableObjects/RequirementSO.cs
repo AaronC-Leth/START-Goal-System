@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace START.GoalSystem.ScriptableObjects
+namespace START.scripts.GoalSystem.ScriptableObjects
 {
     public abstract class RequirementSO : ScriptableObject
     {

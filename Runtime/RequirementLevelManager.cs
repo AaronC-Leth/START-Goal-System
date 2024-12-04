@@ -1,15 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using START.GoalSystem.ScriptableObjects;
+using START.scripts.GoalSystem.ScriptableObjects;
 using UnityEngine;
 using UnityEngine.Events;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace START.GoalSystem
+namespace START.Scripts.GoalSystem
 {
     public class RequirementLevelManager : MonoBehaviour
     {
@@ -25,8 +24,6 @@ namespace START.GoalSystem
             public string GoalName => goal != null ? goal.name : "Unnamed Goal";
         }
 
-        [SerializeField] private bool initializeOnStart = false;
-
         [SerializeField]
         [Tooltip("List of goals managed by this level. Check 'Activate by Default' for goals that should be active when the level starts.")]
         private List<GoalEntry> goalList = new List<GoalEntry>();
@@ -40,17 +37,12 @@ namespace START.GoalSystem
 
         private Dictionary<GoalSO, Coroutine> activeCoroutines = new Dictionary<GoalSO, Coroutine>();
 
-        private void Start()
-        {
-            if (initializeOnStart) Initialize();
-        }
-
         public void Initialize()
         {
             InitializeAndActivateGoals();
             SubscribeToGoalEvents();
         }
-
+        
         private void OnDestroy()
         {
             UnsubscribeFromGoalEvents();
@@ -65,7 +57,7 @@ namespace START.GoalSystem
                 GoalManager.Instance.OnGoalCompleted.RemoveListener(HandleGoalCompleted);
             }
         }
-
+        
         private void InitializeAndActivateGoals()
         {
             foreach (GoalEntry goalEntry in goalList)
@@ -87,7 +79,7 @@ namespace START.GoalSystem
 
         private void RemoveGoals()
         {
-            if (GoalManager.Instance == null) return;
+            if(GoalManager.Instance == null) return;
             foreach (GoalEntry goalEntry in goalList)
             {
                 if (goalEntry.goal != null)
@@ -112,16 +104,16 @@ namespace START.GoalSystem
 
         public void ActivateGoalAtIndex(int index)
         {
-            if (goalList == null || goalList.Count < 1) return;
+            if(goalList == null || goalList.Count < 1) return;
             GoalManager.Instance.ActivateGoal(goalList[0].goal);
         }
-
+        
         public void ActivateGoal(GoalSO goal)
         {
-            if (goalList == null || goalList.Count < 1) return;
+            if(goalList == null || goalList.Count < 1) return;
             GoalManager.Instance.ActivateGoal(goal);
         }
-
+        
         private void HandleGoalActivated(GoalSO goal)
         {
             GoalEntry entry = goalList.Find(g => g.goal == goal);
@@ -130,6 +122,7 @@ namespace START.GoalSystem
                 StopAndStartCoroutine(goal, entry.activationEvents);
             }
         }
+        
 
         private void HandleGoalCompleted(GoalSO goal)
         {
@@ -144,7 +137,7 @@ namespace START.GoalSystem
         {
             if (activeCoroutines.TryGetValue(goal, out Coroutine coroutine))
             {
-                if (coroutine != null) StopCoroutine(coroutine);
+                if(coroutine != null) StopCoroutine(coroutine);
             }
 
             activeCoroutines[goal] = StartCoroutine(ExecuteDelayedActions(actions));
@@ -186,10 +179,6 @@ namespace START.GoalSystem
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-
-            // Expose initializeOnStart
-            SerializedProperty initializeOnStartProperty = serializedObject.FindProperty("initializeOnStart");
-            EditorGUILayout.PropertyField(initializeOnStartProperty);
 
             SerializedProperty goalListProperty = serializedObject.FindProperty("goalList");
 

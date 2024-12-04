@@ -1,4 +1,4 @@
-namespace START.GoalSystem.ScriptableObjects
+namespace START.scripts.GoalSystem.ScriptableObjects
 {
     public class IntRequirementData : RequirementData
     {
@@ -12,12 +12,6 @@ namespace START.GoalSystem.ScriptableObjects
             targetValue = config.targetValue;
         }
 
-
-        public int Value()
-        {
-            return currentValue;
-        }
-        
         public override void Reset()
         {
             currentValue = 0;

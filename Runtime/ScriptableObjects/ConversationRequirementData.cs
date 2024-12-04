@@ -1,6 +1,6 @@
-using START.GoalSystem;
+using START.Scripts.GoalSystem;
 
-namespace START.GoalSystem.ScriptableObjects
+namespace START.scripts.GoalSystem.ScriptableObjects
 {
     public class ConversationRequirementData : RequirementData
     {

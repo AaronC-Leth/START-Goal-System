@@ -1,7 +1,7 @@
-using START.GoalSystem.ScriptableObjects;
+using START.scripts.GoalSystem.ScriptableObjects;
 using UnityEngine;
 
-namespace START.GoalSystem
+namespace START.Scripts.GoalSystem
 {
     [RequireComponent(typeof(Collider))]
     public class RequirementTrigger : RequirementUpdater
@@ -11,7 +11,6 @@ namespace START.GoalSystem
         [SerializeField] private bool debugMode = false;
 
         private bool hasTriggered = false;
-
         private void Start()
         {
             // Ensure the attached collider is a trigger
@@ -48,7 +47,7 @@ namespace START.GoalSystem
                 return;
             }
 
-            foreach (var update in requirementUpdates)
+            foreach (var update in GetRequirementUpdates())
             {
                 switch (update.updateType)
                 {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace START.GoalSystem.ScriptableObjects
+namespace START.scripts.GoalSystem.ScriptableObjects
 {
     [CreateAssetMenu(fileName = "New Int Requirement", menuName = "START/Requirements/Int Requirement")]
     public class IntRequirementSO : RequirementSO
